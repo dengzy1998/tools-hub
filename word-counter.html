@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Word Counter &amp; Text Tools — Count Words, Convert Case, Remove Duplicate Lines</title>
+<meta name="description" content="Free word counter and text toolkit: count words, characters, sentences and reading time; convert to UPPERCASE, lowercase or Title Case; remove duplicate lines, sort lines and clean up spacing — instantly, in your browser.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site"><div class="wrap">
+  <a class="logo" href="index.html">🛠️ Tools Hub</a>
+  <nav>
+    <a href="image-compressor.html">Images</a>
+    <a href="word-counter.html">Text</a>
+    <a href="qr-generator.html">QR Code</a>
+  </nav>
+</div></header>
+<main><div class="wrap">
+  <h1>Word Counter &amp; Text Tools</h1>
+  <p class="lede">Paste or type your text below. Statistics update as you type, and the cleanup tools work with one click. Everything runs locally — your text is never sent anywhere.</p>
+
+  <div class="card">
+    <div class="stats">
+      <div class="stat"><b id="s-words">0</b><span>Words</span></div>
+      <div class="stat"><b id="s-chars">0</b><span>Characters</span></div>
+      <div class="stat"><b id="s-nospace">0</b><span>Chars (no spaces)</span></div>
+      <div class="stat"><b id="s-sent">0</b><span>Sentences</span></div>
+      <div class="stat"><b id="s-para">0</b><span>Paragraphs</span></div>
+      <div class="stat"><b id="s-lines">0</b><span>Lines</span></div>
+      <div class="stat"><b id="s-read">0 min</b><span>Reading time</span></div>
+      <div class="stat"><b id="s-long">—</b><span>Longest word</span></div>
+    </div>
+
+    <label for="text">Your text</label>
+    <textarea id="text" placeholder="Start typing or paste your text here…"></textarea>
+
+    <div class="btnrow">
+      <button class="btn secondary" data-op="upper">UPPERCASE</button>
+      <button class="btn secondary" data-op="lower">lowercase</button>
+      <button class="btn secondary" data-op="title">Title Case</button>
+      <button class="btn secondary" data-op="sentence">Sentence case</button>
+      <button class="btn secondary" data-op="dedupe">Remove duplicate lines</button>
+      <button class="btn secondary" data-op="sort">Sort lines A–Z</button>
+      <button class="btn secondary" data-op="trim">Trim each line</button>
+      <button class="btn secondary" data-op="spaces">Fix extra spaces</button>
+      <button class="btn secondary" data-op="clear">Clear</button>
+      <button class="btn" id="copy">📋 Copy text</button>
+    </div>
+    <p class="meta" id="copied"></p>
+  </div>
+
+  <section class="about">
+    <h2>About this word counter</h2>
+    <p>Writers, students and marketers use word counts every day — for essays with strict limits, articles, product descriptions, social posts and speeches. This counter updates live as you type and also shows characters (with and without spaces), sentences, paragraphs and an estimated reading time at 200 words per minute.</p>
+    <p>The built-in text tools fix common annoyances in one click: convert a whole document between UPPERCASE, lowercase, Title Case and Sentence case; remove duplicate lines from lists and data exports; sort lines alphabetically; trim stray whitespace and collapse repeated spaces. Because it all happens in your browser, even sensitive drafts stay private.</p>
+  </section>
+</div></main>
+<footer class="site"><div class="wrap"><a href="index.html">← All tools</a> · Tools Hub — your data never leaves your device.</div></footer>
+<script>
+const ta=document.getElementById('text');
+const $=id=>document.getElementById(id);
+function update(){
+  const t=ta.value;
+  const words=t.trim()?t.trim().split(/\s+/):[];
+  $('s-words').textContent=words.length;
+  $('s-chars').textContent=t.length;
+  $('s-nospace').textContent=t.replace(/\s/g,'').length;
+  $('s-sent').textContent=(t.match(/[.!?]+(\s|$)/g)||[]).length||(t.trim()?1:0);
+  $('s-para').textContent=t.trim()?t.split(/\n\s*\n/).filter(x=>x.trim()).length:0;
+  $('s-lines').textContent=t?t.split('\n').length:0;
+  $('s-read').textContent=words.length?Math.max(1,Math.round(words.length/200))+' min':'0 min';
+  $('s-long').textContent=words.length?words.reduce((a,b)=>b.length>a.length?b:a,''):'—';
+}
+ta.addEventListener('input',update);
+const ops={
+  upper:t=>t.toUpperCase(),
+  lower:t=>t.toLowerCase(),
+  title:t=>t.toLowerCase().replace(/(^|\s|[("'])(\S)/g,(m,p,c)=>p+c.toUpperCase()),
+  sentence:t=>t.toLowerCase().replace(/(^\s*[a-z]|[.!?]\s*[a-z])/g,m=>m.toUpperCase()),
+  dedupe:t=>[...new Set(t.split('\n'))].join('\n'),
+  sort:t=>t.split('\n').sort((a,b)=>a.localeCompare(b)).join('\n'),
+  trim:t=>t.split('\n').map(l=>l.trim()).join('\n'),
+  spaces:t=>t.replace(/[ \t]+/g,' ').replace(/\n{3,}/g,'\n\n'),
+  clear:()=>''
+};
+document.querySelectorAll('[data-op]').forEach(b=>b.addEventListener('click',()=>{
+  ta.value=ops[b.dataset.op](ta.value);update();ta.focus();
+}));
+$('copy').addEventListener('click',async()=>{
+  try{await navigator.clipboard.writeText(ta.value);$('copied').textContent='Copied to clipboard ✓'}
+  catch(e){ta.select();document.execCommand('copy');$('copied').textContent='Copied to clipboard ✓'}
+  setTimeout(()=>$('copied').textContent='',2000);
+});
+update();
+</script>
+</body>
+</html>

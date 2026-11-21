@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QR Code Generator — Create &amp; Download QR Codes for Free</title>
+<meta name="description" content="Free QR code generator: turn any text, link, Wi-Fi name or message into a QR code instantly and download it as a high-resolution PNG. No sign-up, no watermarks.">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+<header class="site"><div class="wrap">
+  <a class="logo" href="index.html">🛠️ Tools Hub</a>
+  <nav>
+    <a href="image-compressor.html">Images</a>
+    <a href="word-counter.html">Text</a>
+    <a href="qr-generator.html">QR Code</a>
+  </nav>
+</div></header>
+<main><div class="wrap">
+  <h1>QR Code Generator</h1>
+  <p class="lede">Enter any text or link, get a QR code instantly, and download it as a crisp PNG — free, with no watermark and no sign-up.</p>
+
+  <div class="card">
+    <label for="content">Text or URL</label>
+    <input type="text" id="content" placeholder="https://example.com or any text…" value="https://example.com">
+    <label for="size">PNG size</label>
+    <select id="size">
+      <option value="256">256 × 256 — screen &amp; chat</option>
+      <option value="512" selected>512 × 512 — documents</option>
+      <option value="1024">1024 × 1024 — print</option>
+    </select>
+    <div class="btnrow"><button class="btn" id="gen">Generate QR code</button></div>
+
+    <div class="result" id="result" hidden>
+      <div id="qrcode"></div>
+      <div class="btnrow" style="justify-content:center">
+        <a class="btn" id="download" href="#" download="qrcode.png">⬇️ Download PNG</a>
+      </div>
+      <p class="meta" style="text-align:center">Tip: test-scan the code with your phone before printing it.</p>
+    </div>
+    <p class="meta" id="err" style="color:#b91c1c"></p>
+  </div>
+
+  <section class="about">
+    <h2>How to use this QR code generator</h2>
+    <p>Type or paste a link, text, phone number or any short message, choose a size, and click Generate. Your QR code is created right in your browser and can be downloaded as a PNG image — ready for posters, menus, packaging, business cards or sharing in chat.</p>
+    <p>For print, pick the 1024 × 1024 size so the code stays sharp. Keep the content short: the more text a QR code holds, the denser it becomes and the harder it is to scan. A short URL works best. The code uses a high error-correction level, so it still scans even if a small part is covered or smudged.</p>
+  </section>
+</div></main>
+<footer class="site"><div class="wrap"><a href="index.html">← All tools</a> · Tools Hub — your data never leaves your device.</div></footer>
+<script>
+const contentEl=document.getElementById('content'),sizeEl=document.getElementById('size'),
+      box=document.getElementById('qrcode'),result=document.getElementById('result'),
+      dl=document.getElementById('download'),err=document.getElementById('err');
+function generate(){
+  err.textContent='';
+  const text=contentEl.value.trim();
+  if(!text){err.textContent='Please enter some text or a URL first.';result.hidden=true;return}
+  if(typeof QRCode==='undefined'){err.textContent='The QR library failed to load — please check your connection and refresh.';return}
+  box.innerHTML='';
+  const size=parseInt(sizeEl.value,10);
+  try{
+    new QRCode(box,{text:text,width:size,height:size,correctLevel:QRCode.CorrectLevel.H});
+  }catch(e){err.textContent='That content is too long for one QR code. Try shortening it.';return}
+  const canvas=box.querySelector('canvas');
+  if(canvas){dl.href=canvas.toDataURL('image/png')}
+  result.hidden=false;
+}
+document.getElementById('gen').addEventListener('click',generate);
+contentEl.addEventListener('keydown',e=>{if(e.key==='Enter')generate()});
+generate();
+</script>
+</body>
+</html>
