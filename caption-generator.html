@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Caption &amp; Hook Generator for Reels, Shorts &amp; TikTok — Free Caption Ideas + Hashtags</title>
+<meta name="description" content="Generate scroll-stopping captions, opening hooks and hashtag sets for your Reels, Shorts and TikToks. Pick a category, add your topic, get ready-to-post captions in one click — free, in your browser.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site"><div class="wrap">
+  <a class="logo" href="index.html">🛠️ Tools Hub</a>
+  <nav>
+    <a href="vin-decoder.html">VIN</a>
+    <a href="used-car-cost.html">Car Cost</a>
+    <a href="subtitle-tools.html">Subtitles</a>
+    <a href="caption-generator.html">Captions</a>
+    <a href="image-compressor.html">Images</a>
+    <a href="word-counter.html">Text</a>
+    <a href="qr-generator.html">QR</a>
+  </nav>
+</div></header>
+<main><div class="wrap">
+  <h1>Caption &amp; Hook Generator</h1>
+  <p class="lede">Staring at a blank caption box kills more posts than bad footage does. Pick your niche, type your topic, and get ready-to-post captions with opening hooks and hashtag sets.</p>
+
+  <div class="card">
+    <div class="grid2">
+      <div>
+        <label for="cat">Category</label>
+        <select id="cat">
+          <option value="food">🍜 Food</option>
+          <option value="travel">✈️ Travel</option>
+          <option value="cars">🚗 Cars</option>
+          <option value="pets">🐾 Pets</option>
+          <option value="fitness">💪 Fitness</option>
+          <option value="fashion">👗 Fashion &amp; Beauty</option>
+          <option value="business">💼 Business &amp; Side Hustles</option>
+        </select>
+      </div>
+      <div>
+        <label for="topic">Your topic (a dish, a place, a moment…)</label>
+        <input type="text" id="topic" placeholder="e.g. homemade ramen night">
+      </div>
+    </div>
+    <div class="btnrow">
+      <button class="btn" id="gen">✨ Generate captions</button>
+      <button class="btn secondary" id="more" style="display:none">🔀 Shuffle more</button>
+    </div>
+    <div id="results"></div>
+    <p class="meta" style="margin-top:14px">🎬 Want the full playbook? Our <strong>Faceless Shorts Script &amp; Hook Pack</strong> — 100 hooks and 30 complete video scripts — is coming soon to our shop. Need subtitles for the video itself? Use the <a href="subtitle-tools.html">Subtitle Tools</a>.</p>
+  </div>
+
+  <section class="about">
+    <h2>Why hooks and captions decide your reach</h2>
+    <p>On Reels, Shorts and TikTok, the first line of your caption and the first second of your hook decide whether viewers stay or swipe. This generator combines proven opening patterns — questions, mistakes, secrets, before/afters and hot takes — with category-specific caption templates and a balanced hashtag set (a few big tags, several niche ones, plus your topic as its own tag).</p>
+    <p>Generate a batch, copy the one that fits your video's energy, and tweak the details so it sounds like you. Everything runs locally in your browser from a built-in template library: no account, no uploads, unlimited generations.</p>
+  </section>
+</div></main>
+<footer class="site"><div class="wrap"><a href="index.html">← All tools</a> · Tools Hub — your data never leaves your device.</div></footer>
+<script>
+const $=id=>document.getElementById(id);
+const LIB={
+food:{sample:'spicy noodle night',
+ hooks:['Stop scrolling if you love {t}','I was NOT ready for this {t}','The secret to perfect {t} nobody tells you','Rating my {t} until I find a 10/10','POV: you finally nailed {t}','3 mistakes everyone makes with {t}'],
+ caps:['Made {t} from scratch and I have zero regrets 😮‍💨 Recipe in the comments — save this for later!','{t} but make it restaurant-level 👨‍🍳 Full breakdown in the caption. Would you try this?','Day in my kitchen: {t} edition. Simple ingredients, big flavour. Follow for the next one 🍽️','Honest review of {t}: texture, flavour, and whether it is worth the hype. Verdict at the end 👀'],
+ tags:['#foodie','#foodtok','#easyrecipes','#homecooking','#foodlover','#recipeoftheday','#yummy','#cookingathome','#foodstagram','#tasty']},
+travel:{sample:'hidden mountain town',
+ hooks:['This place does not feel real: {t}','What $20 gets you in {t}','Nobody talks about {t} — and that is the best part','I almost skipped {t}. Biggest mistake avoided','The side of {t} tourists never see','Save this before your {t} trip'],
+ caps:['{t} exceeded every expectation. Full itinerary in the caption — save this for your trip planning ✈️','Things I wish I knew before going to {t}. Number 3 saved me real money 💸','48 hours in {t}: what we ate, what we skipped, what we would do again. Ask me anything below 👇','Rating {t} as a budget traveller: views 10/10, prices… watch till the end'],
+ tags:['#travel','#travelgram','#wanderlust','#travelguide','#budgettravel','#hiddengems','#traveltok','#vacation','#explore','#traveltips']},
+cars:{sample:'buying a used SUV',
+ hooks:['Before you buy, check this: {t}','The dealer hopes you never learn this about {t}','I inspected {t} so you do not have to','3 red flags I found in this {t}','What {t} really costs after one year','This {t} trick saves buyers thousands'],
+ caps:['Full walk-around of {t}: the good, the bad and the deal-breakers. Would you buy it? 🚗','Thinking about {t}? Here is the honest total cost — tax, fees and year-one running costs included.','Inspection day: {t}. Every flaw I found, in order. Checklist in the comments ✅','{t} — dream car or money pit? My verdict after the test drive. Follow for more buyer guides'],
+ tags:['#cars','#usedcars','#carbuying','#cartips','#carsoftiktok','#autotok','#carreview','#dealership','#carcheck','#motors']},
+pets:{sample:'my cat at 6am',
+ hooks:['Nobody believes my pet does this: {t}','POV: {t}','Wait for the end… {t}','Day 1 vs day 100 of {t}','He really said "hold my treat" — {t}','Tell me you have a pet without telling me: {t}'],
+ caps:['{t} and I would not trade this chaos for anything 🐾 Tag a pet parent who gets it','Caught on camera: {t}. The audacity levels are off the charts 😂','A completely normal day of {t}. Send this to someone who needs a smile today 💛','Rating {t} on the good-boy scale. Spoiler: it is always 10/10'],
+ tags:['#pets','#petsoftiktok','#dogsoftiktok','#catsoftiktok','#petlover','#funnypets','#dailydoseofcute','#petlife','#furbaby','#animalsoftiktok']},
+fitness:{sample:'30-day push-up challenge',
+ hooks:['I tried {t} for 30 days. Here is the truth','Stop doing {t} like this','The {t} mistake killing your progress','What nobody tells beginners about {t}','Day 1 of {t} — follow the journey','Your sign to start {t} today'],
+ caps:['{t}: week one done. What changed, what hurt, what I am adjusting. Save this if you are starting too 💪','Beginner-friendly {t} breakdown — form first, ego last. Full routine in the caption 📌','Progress is not linear: {t} taught me that. Show up anyway. Follow for day-by-day updates','Answering your questions about {t}: how long, how often, and what I eat. Ask more below 👇'],
+ tags:['#fitness','#gymtok','#workout','#fitnesstips','#gymlife','#training','#healthylifestyle','#fitnessjourney','#personaltrainer','#homeworkout']},
+fashion:{sample:'thrifted outfit under $30',
+ hooks:['The outfit formula nobody shares: {t}','Styling {t} three ways','Expensive-looking {t} on a real budget','I almost returned this {t}… then I styled it','GRWM: {t} edition','This {t} hack changes everything'],
+ caps:['{t} — full outfit details in the caption. Which look wins: 1, 2 or 3? 👗','Proof that {t} does not need a big budget. Links and dupes in the comments ✨','Honest try-on of {t}: fit, fabric and whether it survives a full day out. Verdict at the end','Building a capsule wardrobe around {t}. Save this for your next shopping trip 🛍️'],
+ tags:['#fashion','#ootd','#styletips','#fashiontok','#outfitinspo','#grwm','#affordablefashion','#styleinspo','#lookbook','#thriftedfashion']},
+business:{sample:'my first $100 online',
+ hooks:['What I learned from {t} (steal this)','Nobody talks about this side of {t}','I tracked every dollar of {t}. Here are the numbers','Beginners get {t} wrong. Do this instead','The boring system behind {t}','If I started {t} from zero today…'],
+ caps:['Breaking down {t}: what worked, what flopped, and the exact numbers. Save this before you start 📊','{t} is not luck — it is a system. The 3 steps I repeat every week, in the caption','Lessons from {t} I wish someone had told me a year ago. Follow for the full series 💼','Honest update on {t}: revenue, costs and what is next. Questions welcome below 👇'],
+ tags:['#sidehustle','#smallbusiness','#entrepreneur','#businesstips','#makemoneyonline','#hustle','#startup','#passiveincome','#onlinebusiness','#freelancer']}
+};
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const shuffle=a=>[...a].sort(()=>Math.random()-.5);
+function generate(){
+  const cat=$('cat').value,lib=LIB[cat];
+  let topic=$('topic').value.trim()||lib.sample;
+  const topicTag='#'+topic.replace(/[^a-zA-Z0-9 ]/g,'').trim().replace(/\s+/g,'');
+  const seen=new Set(),cards=[];
+  for(let i=0;i<6;i++){
+    const hook=pick(lib.hooks).replaceAll('{t}',topic);
+    const cap=pick(lib.caps).replaceAll('{t}',topic);
+    const tags=shuffle(lib.tags).slice(0,7).join(' ')+(topicTag.length>1?' '+topicTag:'');
+    const text=hook+'\n\n'+cap+'\n\n'+tags;
+    if(seen.has(text))continue;seen.add(text);
+    cards.push(text);
+  }
+  $('results').innerHTML=cards.map((t,i)=>`<div class="outbox" style="white-space:pre-wrap">${t.replace(/</g,'&lt;')}<div class="btnrow"><button class="btn secondary" data-copy="${i}">📋 Copy</button></div></div>`).join('');
+  $('results').querySelectorAll('[data-copy]').forEach((b,idx)=>b.addEventListener('click',async()=>{
+    try{await navigator.clipboard.writeText(cards[idx]);b.textContent='Copied ✓';}
+    catch(e){b.textContent='Copy failed — select the text manually';}
+    setTimeout(()=>b.textContent='📋 Copy',1800);
+  }));
+  $('more').style.display='inline-block';
+}
+$('gen').addEventListener('click',generate);
+$('more').addEventListener('click',generate);
+$('cat').addEventListener('change',()=>{$('topic').placeholder='e.g. '+LIB[$('cat').value].sample;});
+</script>
+</body>
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Used Car Total Cost Calculator &amp; Inspection Checklist — True Cost of Buying Used</title>
+<meta name="description" content="Work out the real cost of a used car: price, sales tax, title and registration, dealer fees, insurance and first-year running costs — plus a free interactive inspection checklist written by a used-car professional.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site"><div class="wrap">
+  <a class="logo" href="index.html">🛠️ Tools Hub</a>
+  <nav>
+    <a href="vin-decoder.html">VIN</a>
+    <a href="used-car-cost.html">Car Cost</a>
+    <a href="subtitle-tools.html">Subtitles</a>
+    <a href="caption-generator.html">Captions</a>
+    <a href="image-compressor.html">Images</a>
+    <a href="word-counter.html">Text</a>
+    <a href="qr-generator.html">QR</a>
+  </nav>
+</div></header>
+<main><div class="wrap">
+  <h1>Used-Car Total Cost Calculator &amp; Inspection Checklist</h1>
+  <p class="lede">The sticker price is never the real price. Work out your true out-the-door and first-year cost, then walk the lot with a professional inspection checklist so you don't buy someone else's problems.</p>
+
+  <div class="card">
+    <h2 style="margin-top:0">Total cost calculator</h2>
+    <div class="grid2">
+      <div><label for="price">Vehicle price ($)</label><input type="number" id="price" value="12000" min="0" step="100"></div>
+      <div><label for="tax">Sales tax rate (%)</label><input type="number" id="tax" value="7" min="0" step="0.25"></div>
+      <div><label for="title">Title &amp; registration fees ($)</label><input type="number" id="title" value="250" min="0" step="10"></div>
+      <div><label for="doc">Dealer / doc fees ($)</label><input type="number" id="doc" value="399" min="0" step="10"></div>
+      <div><label for="ins">Insurance estimate ($ / year)</label><input type="number" id="ins" value="1500" min="0" step="50"></div>
+      <div><label for="fuel">Fuel estimate ($ / year)</label><input type="number" id="fuel" value="1800" min="0" step="50"></div>
+      <div><label for="maint">Maintenance &amp; repairs budget ($ / year)</label><input type="number" id="maint" value="800" min="0" step="50"></div>
+    </div>
+    <div class="stats" style="margin-top:16px">
+      <div class="stat"><b id="o-tax">$0</b><span>Sales tax</span></div>
+      <div class="stat"><b id="o-otd">$0</b><span>Out-the-door price</span></div>
+      <div class="stat"><b id="o-run">$0</b><span>First-year running costs</span></div>
+      <div class="stat"><b id="o-total">$0</b><span>Total cost of year one</span></div>
+    </div>
+    <p class="meta">Tip: negotiate on the out-the-door number, not the sticker. Doc fees and add-ons are where margins hide.</p>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">Inspection checklist <span class="pill" id="prog-label">0 / 30 checked</span></h2>
+    <div class="progress"><i id="prog-bar"></i></div>
+    <div id="checklist"></div>
+    <div class="btnrow"><button class="btn secondary" id="reset">Reset checklist</button></div>
+    <p class="meta" style="margin-top:14px">📦 Want the full printable kit? The complete <strong>Used-Car Buyer Inspection Kit</strong> — printable checklists, negotiation scripts and a paperwork guide — is coming soon to our shop. Pair this list with a free <a href="vin-decoder.html">VIN decode &amp; recall check</a> before you go.</p>
+  </div>
+
+  <section class="about">
+    <h2>Why the "cheap" car is often the expensive one</h2>
+    <p>Taxes, title and registration, dealer documentation fees and the first year of insurance, fuel and maintenance routinely add 25–40% on top of a used car's asking price. This calculator makes that visible before you commit, using your own local tax rate and fee estimates — adjust every field and the totals update instantly, entirely in your browser.</p>
+    <p>The checklist below it is the same walk-around a professional buyer does at auction: body and paint consistency, cold-start behaviour, fluid colours, warning lights, a structured test drive, and the paperwork checks that catch salvage titles and odometer problems. Tick items off on your phone as you inspect. Anything you find is either a walk-away reason or a documented reason to negotiate the price down.</p>
+  </section>
+</div></main>
+<footer class="site"><div class="wrap"><a href="index.html">← All tools</a> · Tools Hub — your data never leaves your device.</div></footer>
+<script>
+const $=id=>document.getElementById(id);
+const money=n=>'$'+Math.round(n).toLocaleString('en-US');
+const num=id=>{const v=parseFloat($(id).value);return isNaN(v)||v<0?0:v;};
+function calc(){
+  const price=num('price'),taxAmt=price*num('tax')/100;
+  const otd=price+taxAmt+num('title')+num('doc');
+  const run=num('ins')+num('fuel')+num('maint');
+  $('o-tax').textContent=money(taxAmt);
+  $('o-otd').textContent=money(otd);
+  $('o-run').textContent=money(run);
+  $('o-total').textContent=money(otd+run);
+}
+['price','tax','title','doc','ins','fuel','maint'].forEach(id=>$(id).addEventListener('input',calc));
+calc();
+
+const GROUPS=[
+ ['🚗 Exterior',['Paint matches across panels (mismatched shades = accident repair)','Panel gaps are even on both sides','Rust check: wheel arches, door sills, underbody edges','Tires: tread depth even, all four same brand and size','Glass: no chips or cracks, all windows operate','All lights work: headlights, brake, indicators, reverse']],
+ ['🔧 Mechanical',['Cold start: starts cleanly, no smoke or rattling (insist the engine is cold when you arrive)','Engine oil: level correct, not milky or gritty','Coolant: clean colour, no oil film on top','No fresh leaks under the car after 10 minutes parked','Brakes: firm pedal, no grinding or squealing','A/C blows properly cold within a minute','Battery: check age sticker, slow cranking is a warning']],
+ ['🪑 Interior',['No warning lights stay on: check engine, airbag, ABS','All electrics work: windows, locks, mirrors, seats','Odometer wear matches pedals, steering wheel and driver seat','No smoke, mould or flood smell (lift the spare-wheel well and sniff)','Spare tire, jack and tools present','Infotainment, speakers and reversing camera work']],
+ ['🛣️ Test drive',['Steering stays straight on a flat road, hands briefly off','Braking from speed: no pulling or vibration','Gearbox shifts smoothly, no hesitation or clunks (test reverse too)','No knocks over bumps, no whining that rises with speed','Highway run: stable, no vibration through the wheel']],
+ ['📄 Paperwork',['Title name matches the seller\'s ID — never buy from a "friend of the owner"','Title status is clean (not salvage / rebuilt / flood)','VIN on title matches windshield plate and door jamb sticker','Service records exist and mileages increase sensibly','Ask for recall completion proof (decode the VIN on this site)','Odometer disclosure statement signed at handover']]
+];
+const wrap=$('checklist');let total=0;
+GROUPS.forEach(([name,items])=>{
+  const h=document.createElement('h2');h.textContent=name;h.style.fontSize='1.05rem';wrap.appendChild(h);
+  items.forEach(text=>{
+    total++;
+    const lab=document.createElement('label');lab.className='check';
+    lab.innerHTML='<input type="checkbox"><span></span>';
+    lab.querySelector('span').textContent=text;
+    lab.querySelector('input').addEventListener('change',e=>{lab.classList.toggle('done',e.target.checked);progress();});
+    wrap.appendChild(lab);
+  });
+});
+function progress(){
+  const done=wrap.querySelectorAll('input:checked').length;
+  $('prog-label').textContent=done+' / '+total+' checked';
+  $('prog-bar').style.width=(total?done/total*100:0)+'%';
+}
+$('reset').addEventListener('click',()=>{wrap.querySelectorAll('input').forEach(i=>{i.checked=false;i.closest('.check').classList.remove('done');});progress();});
+progress();
+</script>
+</body>
+</html>

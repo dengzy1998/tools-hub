@@ -26,7 +26,7 @@ p.lede{color:var(--muted);font-size:1.05rem;max-width:640px}
 .tool-card h3{font-size:1.08rem;margin-bottom:6px}
 .tool-card p{color:var(--muted);font-size:.93rem}
 label{display:block;font-weight:600;font-size:.92rem;margin:14px 0 6px}
-input[type=text],input[type=url],textarea,select{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font:inherit;background:#fff;color:var(--text)}
+input[type=text],input[type=url],input[type=number],textarea,select{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font:inherit;background:#fff;color:var(--text)}
 textarea{min-height:170px;resize:vertical}
 input[type=range]{width:100%}
 .btn{display:inline-block;background:var(--accent);color:#fff;border:none;padding:10px 20px;border-radius:8px;font:inherit;font-weight:600;cursor:pointer;margin-top:14px}
@@ -51,3 +51,21 @@ section.about p{margin-bottom:10px}
 #qrcode{display:flex;justify-content:center;padding:14px;background:#fff}
 #qrcode img,#qrcode canvas{max-width:100%}
 @media (max-width:560px){h1{font-size:1.4rem}nav a{margin-left:12px}}
+header.site nav{white-space:nowrap;overflow-x:auto;scrollbar-width:none}
+header.site nav::-webkit-scrollbar{display:none}
+.kv{width:100%;border-collapse:collapse;margin-top:6px}
+.kv th,.kv td{padding:8px 10px;border-bottom:1px solid var(--border);text-align:left;font-size:.95rem;vertical-align:top}
+.kv th{width:38%;color:var(--muted);font-weight:600}
+.err{color:#b91c1c;font-weight:600;margin-top:10px}
+.recall{border:1px solid var(--border);border-radius:8px;padding:14px;margin-top:10px}
+.recall h4{font-size:1rem;margin-bottom:4px}
+.warn{color:#b91c1c;font-weight:700}
+.check{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-bottom:1px solid #eef1f6;cursor:pointer}
+.check input{margin-top:5px;width:17px;height:17px;flex:none;cursor:pointer}
+.check.done span{color:var(--muted);text-decoration:line-through}
+.progress{height:10px;background:#eef1f6;border-radius:6px;overflow:hidden;margin-top:8px}
+.progress i{display:block;height:100%;background:var(--ok);width:0;transition:width .25s}
+.outbox{background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:14px;margin-top:10px;white-space:pre-wrap;word-break:break-word}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:4px 16px}
+@media (max-width:560px){.grid2{grid-template-columns:1fr}}
+.pill{display:inline-block;background:#eef1f6;border-radius:999px;padding:2px 10px;font-size:.8rem;color:var(--muted);margin-left:8px}

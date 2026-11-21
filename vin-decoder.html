@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Free VIN Decoder &amp; Recall Check — Look Up Any Car by VIN (NHTSA Data)</title>
+<meta name="description" content="Decode any 17-digit VIN for free: year, make, model, trim, engine, transmission and factory — plus open safety recalls. Uses the official NHTSA vPIC database, right in your browser.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site"><div class="wrap">
+  <a class="logo" href="index.html">🛠️ Tools Hub</a>
+  <nav>
+    <a href="vin-decoder.html">VIN</a>
+    <a href="used-car-cost.html">Car Cost</a>
+    <a href="subtitle-tools.html">Subtitles</a>
+    <a href="caption-generator.html">Captions</a>
+    <a href="image-compressor.html">Images</a>
+    <a href="word-counter.html">Text</a>
+    <a href="qr-generator.html">QR</a>
+  </nav>
+</div></header>
+<main><div class="wrap">
+  <h1>VIN Decoder &amp; Recall Check</h1>
+  <p class="lede">Enter a 17-digit VIN to see what the car really is — year, make, model, trim, engine and where it was built — and whether it has open safety recalls. Data comes straight from the U.S. NHTSA database.</p>
+
+  <div class="card">
+    <label for="vin">Vehicle Identification Number (VIN)</label>
+    <input type="text" id="vin" maxlength="17" placeholder="e.g. 1HGCM82633A004352" autocomplete="off" spellcheck="false" style="text-transform:uppercase">
+    <div class="btnrow">
+      <button class="btn" id="go">🔍 Decode VIN</button>
+      <button class="btn secondary" id="sample">Try a sample VIN</button>
+    </div>
+    <p class="meta" id="status"></p>
+    <p class="err" id="error" style="display:none"></p>
+    <div class="result" id="result" style="display:none">
+      <h2 id="car-title" style="margin-top:6px"></h2>
+      <table class="kv" id="kv"></table>
+    </div>
+  </div>
+
+  <div class="card" id="recall-card" style="display:none">
+    <h2 style="margin-top:0">Safety recalls <span class="pill" id="recall-count"></span></h2>
+    <p class="meta">Recall campaigns on file with NHTSA for this year / make / model. A recall listed here may already have been repaired on this specific car — ask the seller for repair records, and any franchised dealer can check completion by VIN for free.</p>
+    <div id="recalls"></div>
+  </div>
+
+  <section class="about">
+    <h2>About this VIN decoder</h2>
+    <p>Every car sold in the U.S. since 1981 carries a standardized 17-character VIN. This tool decodes it using the <strong>NHTSA vPIC</strong> (Vehicle Product Information Catalog) API — the same free, official database maintained by the U.S. National Highway Traffic Safety Administration — and then checks the NHTSA recalls database for safety campaigns affecting that year, make and model. No account, no fee, and your VIN is sent only to NHTSA's API.</p>
+    <p>Before buying a used car, compare the decoded details against the seller's listing: the year, engine, trim and body style should all match. A mismatch — or a VIN plate that differs between the windshield, door jamb and title — is a serious red flag. Pair this check with our <a href="used-car-cost.html">used-car cost calculator and inspection checklist</a> before you hand over any money. Note: vPIC coverage is strongest for U.S.-market vehicles.</p>
+  </section>
+</div></main>
+<footer class="site"><div class="wrap"><a href="index.html">← All tools</a> · Tools Hub — data from NHTSA (U.S. Department of Transportation).</div></footer>
+<script>
+const $=id=>document.getElementById(id);
+const vinRe=/^[A-HJ-NPR-Z0-9]{17}$/;
+function fail(msg){$('error').textContent=msg;$('error').style.display='block';$('status').textContent='';}
+function row(label,value){return value?`<tr><th>${label}</th><td>${value}</td></tr>`:'';}
+$('sample').addEventListener('click',()=>{$('vin').value='1HGCM82633A004352';lookup();});
+$('go').addEventListener('click',lookup);
+$('vin').addEventListener('keydown',e=>{if(e.key==='Enter')lookup();});
+async function lookup(){
+  const vin=$('vin').value.trim().toUpperCase();
+  $('error').style.display='none';$('result').style.display='none';$('recall-card').style.display='none';
+  if(!vinRe.test(vin)){fail('That does not look like a valid VIN. A VIN has exactly 17 characters, and the letters I, O and Q are never used. Check the plate at the base of the windshield or on the driver\'s door jamb.');return;}
+  $('go').disabled=true;$('status').textContent='Decoding with NHTSA…';
+  try{
+    const res=await fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValues/${vin}?format=json`);
+    if(!res.ok)throw new Error('decode');
+    const data=await res.json();const r=(data.Results||[])[0]||{};
+    if(!r.Make){fail('NHTSA could not decode that VIN. Double-check each character — 0 (zero) and O, 1 and I are easy to mix up — and note that coverage is best for U.S.-market vehicles.');$('go').disabled=false;return;}
+    const engine=[r.EngineCylinders?r.EngineCylinders+' cyl':'',r.DisplacementL?(Math.round(parseFloat(r.DisplacementL)*10)/10)+' L':'',r.EngineHP?r.EngineHP+' hp':''].filter(Boolean).join(' · ');
+    const plant=[r.PlantCity,r.PlantCountry].filter(Boolean).join(', ');
+    $('car-title').textContent=[r.ModelYear,r.Make&&r.Make.charAt(0)+r.Make.slice(1).toLowerCase(),r.Model,r.Trim].filter(Boolean).join(' ');
+    $('kv').innerHTML=
+      row('Model year',r.ModelYear)+row('Make',r.Make)+row('Model',r.Model)+row('Trim',r.Trim)+
+      row('Body style',r.BodyClass)+row('Vehicle type',r.VehicleType)+row('Drive type',r.DriveType)+
+      row('Fuel type',r.FuelTypePrimary)+row('Engine',engine)+row('Transmission',r.TransmissionStyle)+
+      row('Doors',r.Doors)+row('Built in',plant)+row('Manufacturer',r.Manufacturer);
+    $('result').style.display='block';$('status').textContent='Checking recalls…';
+    const q=new URLSearchParams({make:r.Make,model:r.Model,modelYear:r.ModelYear});
+    const rr=await fetch('https://api.nhtsa.gov/recalls/recallsByVehicle?'+q.toString());
+    const rd=await rr.json();const list=rd.results||[];
+    $('recall-count').textContent=list.length?list.length+' on file':'none on file';
+    $('recalls').innerHTML=list.length?list.map(x=>`
+      <div class="recall">
+        <h4>${x.Component||'Safety recall'}</h4>
+        <p class="meta">Campaign ${x.NHTSACampaignNumber||'—'} · Reported ${x.ReportReceivedDate||'—'}${x.parkIt?' · <span class="warn">⚠ Do not drive until repaired</span>':''}${x.parkOutSide?' · <span class="warn">Park outside / away from structures</span>':''}</p>
+        <p>${x.Summary||''}</p>
+        <p class="meta"><strong>Remedy:</strong> ${x.Remedy||'Contact a dealer for the free repair.'}</p>
+      </div>`).join(''):'<p class="ok">✓ No recall campaigns found for this year, make and model.</p>';
+    $('recall-card').style.display='block';$('status').textContent='';
+  }catch(e){
+    fail('The NHTSA database could not be reached just now. Check your connection and try again in a moment.');
+  }
+  $('go').disabled=false;
+}
+</script>
+</body>
+</html>

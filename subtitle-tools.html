@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Subtitle Tools — SRT to VTT Converter, Time Shift &amp; Subtitle Fixer (Free, Online)</title>
+<meta name="description" content="Convert subtitles between SRT and WebVTT, shift the whole timeline by milliseconds, and fix broken subtitle files — renumber cues and normalize timestamps. Free, instant, 100% in your browser.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site"><div class="wrap">
+  <a class="logo" href="index.html">🛠️ Tools Hub</a>
+  <nav>
+    <a href="vin-decoder.html">VIN</a>
+    <a href="used-car-cost.html">Car Cost</a>
+    <a href="subtitle-tools.html">Subtitles</a>
+    <a href="caption-generator.html">Captions</a>
+    <a href="image-compressor.html">Images</a>
+    <a href="word-counter.html">Text</a>
+    <a href="qr-generator.html">QR</a>
+  </nav>
+</div></header>
+<main><div class="wrap">
+  <h1>Subtitle Tools — Convert, Shift &amp; Fix</h1>
+  <p class="lede">Paste a subtitle file or upload one, then convert between SRT and WebVTT, shift the timing, or repair a messy file. Everything is processed locally in your browser — your subtitles are never uploaded.</p>
+
+  <div class="card">
+    <label for="file">Upload a .srt or .vtt file</label>
+    <input type="file" id="file" accept=".srt,.vtt,.txt">
+    <label for="src">Subtitle content <span class="pill" id="fmt-label">no input yet</span></label>
+    <textarea id="src" placeholder="Paste your SRT or VTT subtitles here…"></textarea>
+
+    <div class="btnrow">
+      <button class="btn" data-act="toVtt">Convert SRT → VTT</button>
+      <button class="btn" data-act="toSrt">Convert VTT → SRT</button>
+      <button class="btn secondary" data-act="fix">🛠 Fix &amp; renumber</button>
+    </div>
+    <label for="shift">Shift all timestamps by (milliseconds, use negative to move earlier)</label>
+    <div class="btnrow" style="align-items:flex-end;gap:10px">
+      <input type="number" id="shift" value="500" step="50" style="max-width:200px">
+      <button class="btn secondary" data-act="shift">⏱ Apply shift</button>
+    </div>
+    <p class="err" id="error" style="display:none"></p>
+
+    <label for="out">Result</label>
+    <textarea id="out" placeholder="Your converted subtitles will appear here…" readonly></textarea>
+    <div class="btnrow">
+      <button class="btn" id="download">⬇ Download result</button>
+      <button class="btn secondary" id="copy">📋 Copy result</button>
+    </div>
+    <p class="meta" id="meta"></p>
+  </div>
+
+  <section class="about">
+    <h2>About these subtitle tools</h2>
+    <p>Different platforms want different subtitle formats: YouTube accepts both, most HTML5 players need <strong>WebVTT (.vtt)</strong>, and editing software and older players expect <strong>SubRip (.srt)</strong>. The only real differences are the header, the decimal separator in timestamps and cue numbering — this converter handles all of it, including VTT cue identifiers and SRT files with sloppy formatting.</p>
+    <p>The <strong>time shift</strong> fixes the classic "subtitles run half a second late" problem: measure the offset once, enter it in milliseconds (negative values move subtitles earlier) and apply. <strong>Fix &amp; renumber</strong> sorts cues by start time, renumbers them cleanly and normalizes every timestamp to the strict format players expect, which rescues many files that refuse to load. Writing captions for your next short instead? Try the <a href="caption-generator.html">Caption &amp; Hook Generator</a>.</p>
+  </section>
+</div></main>
+<footer class="site"><div class="wrap"><a href="index.html">← All tools</a> · Tools Hub — your data never leaves your device.</div></footer>
+<script>
+const $=id=>document.getElementById(id);
+function tsToMs(s){
+  const m=s.trim().match(/(?:(\d+):)?(\d{1,2}):(\d{2})[.,](\d{1,3})/);
+  if(!m)return null;
+  const h=parseInt(m[1]||'0'),mi=parseInt(m[2]),se=parseInt(m[3]);
+  const ms=parseInt((m[4]+'000').slice(0,3));
+  return ((h*60+mi)*60+se)*1000+ms;
+}
+function fmt(ms,sep){
+  ms=Math.max(0,Math.round(ms));
+  const h=Math.floor(ms/3600000),mi=Math.floor(ms%3600000/60000),se=Math.floor(ms%60000/1000),m=ms%1000;
+  const p=(n,l)=>String(n).padStart(l,'0');
+  return p(h,2)+':'+p(mi,2)+':'+p(se,2)+sep+p(m,3);
+}
+function parse(text){
+  const norm=text.replace(/\r\n?/g,'\n').replace(/^WEBVTT.*\n/,'');
+  const blocks=norm.split(/\n\s*\n/),cues=[];
+  for(const b of blocks){
+    const lines=b.split('\n').filter(l=>l.trim()!=='');
+    const ti=lines.findIndex(l=>l.includes('-->'));
+    if(ti<0)continue;
+    const parts=lines[ti].split('-->').map(x=>x.trim().split(/\s+/)[0]);
+    const start=tsToMs(parts[0]),end=tsToMs(parts[1]);
+    if(start===null||end===null)continue;
+    const body=lines.slice(ti+1).join('\n').trim();
+    if(body)cues.push({start,end,text:body});
+  }
+  return cues;
+}
+function render(cues,format){
+  cues=[...cues].sort((a,b)=>a.start-b.start);
+  if(format==='vtt'){
+    return 'WEBVTT\n\n'+cues.map(c=>fmt(c.start,'.')+' --> '+fmt(c.end,'.')+'\n'+c.text).join('\n\n')+'\n';
+  }
+  return cues.map((c,i)=>(i+1)+'\n'+fmt(c.start,',')+' --> '+fmt(c.end,',')+'\n'+c.text).join('\n\n')+'\n';
+}
+function detect(text){return /^\s*WEBVTT/.test(text)?'vtt':'srt';}
+function sourceCues(){
+  const t=$('src').value;
+  if(!t.trim()){showErr('Paste or upload a subtitle file first.');return null;}
+  const cues=parse(t);
+  if(!cues.length){showErr('No valid subtitle cues found. Check that the file uses SRT or VTT timestamp lines like 00:00:01,000 --> 00:00:04,000.');return null;}
+  return cues;
+}
+function showErr(m){$('error').textContent=m;$('error').style.display='block';}
+function done(cues,format,note){
+  $('error').style.display='none';
+  $('out').value=render(cues,format);
+  $('out').dataset.format=format;
+  $('meta').textContent=note+' · '+cues.length+' cues · format: '+(format==='vtt'?'WebVTT (.vtt)':'SubRip (.srt)');
+}
+document.querySelectorAll('[data-act]').forEach(b=>b.addEventListener('click',()=>{
+  const cues=sourceCues();if(!cues)return;
+  const cur=detect($('src').value),act=b.dataset.act;
+  if(act==='toVtt')done(cues,'vtt','Converted to WebVTT');
+  else if(act==='toSrt')done(cues,'srt','Converted to SRT');
+  else if(act==='fix')done(cues,cur,'Fixed: sorted, renumbered, timestamps normalized');
+  else if(act==='shift'){
+    const off=parseFloat($('shift').value)||0;
+    cues.forEach(c=>{c.start=Math.max(0,c.start+off);c.end=Math.max(0,c.end+off);});
+    done(cues,cur,'Shifted by '+(off>=0?'+':'')+off+' ms');
+  }
+}));
+$('src').addEventListener('input',()=>{
+  const t=$('src').value;
+  $('fmt-label').textContent=t.trim()?('detected: '+(detect(t)==='vtt'?'WebVTT':'SRT')):'no input yet';
+});
+$('file').addEventListener('change',e=>{
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{$('src').value=r.result;$('src').dispatchEvent(new Event('input'));};
+  r.readAsText(f);
+});
+$('download').addEventListener('click',()=>{
+  if(!$('out').value){showErr('Nothing to download yet — convert something first.');return;}
+  const format=$('out').dataset.format||'srt';
+  const blob=new Blob([$('out').value],{type:'text/plain;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);a.download='subtitles.'+format;a.click();
+  URL.revokeObjectURL(a.href);
+});
+$('copy').addEventListener('click',async()=>{
+  if(!$('out').value)return;
+  try{await navigator.clipboard.writeText($('out').value);$('meta').textContent='Copied to clipboard ✓';}
+  catch(e){$('out').select();document.execCommand('copy');$('meta').textContent='Copied to clipboard ✓';}
+});
+</script>
+</body>
+</html>
