@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Etsy Listing Title &amp; Tag Generator — 140-Character Titles and 13 Tags That Fit</title>
+<meta name="description" content="Generate Etsy-ready listing titles (max 140 characters) and a full set of 13 tags (max 55 characters each) from your product, material, style and audience. Includes attribute suggestions. Free, runs in your browser.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site"><div class="wrap">
+  <a class="logo" href="index.html">🛠️ Tools Hub</a>
+  <nav>
+    <a href="vin-decoder.html">VIN</a>
+    <a href="used-car-cost.html">Car Cost</a>
+    <a href="subtitle-tools.html">Subtitles</a>
+    <a href="caption-generator.html">Captions</a>
+    <a href="image-compressor.html">Images</a>
+    <a href="word-counter.html">Text</a>
+    <a href="qr-generator.html">QR</a>
+    <a href="resume-ats-checker.html">Resume</a>
+    <a href="etsy-title-generator.html">Etsy</a>
+  </nav>
+</div></header>
+<main><div class="wrap">
+  <h1>Etsy Listing Title &amp; Tag Generator</h1>
+  <p class="lede">Etsy gives you 140 characters for a title and exactly 13 tags of 55 characters each — and most sellers waste half of them. Fill in what you sell and get titles and tags that use the full allowance without ever going over.</p>
+
+  <div class="card">
+    <div class="grid2">
+      <div>
+        <label for="product">Product (what it is)</label>
+        <input type="text" id="product" placeholder="e.g. soy candle">
+      </div>
+      <div>
+        <label for="cat">Category</label>
+        <select id="cat">
+          <option value="candle">🕯️ Candles &amp; Home Fragrance</option>
+          <option value="jewellery">💍 Jewellery &amp; Accessories</option>
+          <option value="wallart">🖼️ Wall Art &amp; Prints</option>
+          <option value="clothing">👕 Clothing</option>
+          <option value="wedding">💒 Wedding &amp; Party</option>
+          <option value="pets">🐾 Pet Supplies</option>
+          <option value="stickers">🏷️ Stickers &amp; Paper Goods</option>
+          <option value="digital">⬇️ Digital Downloads</option>
+        </select>
+      </div>
+      <div>
+        <label for="material">Material / key ingredient</label>
+        <input type="text" id="material" placeholder="e.g. soy wax">
+      </div>
+      <div>
+        <label for="style">Style</label>
+        <input type="text" id="style" placeholder="e.g. boho, minimalist, vintage">
+      </div>
+      <div>
+        <label for="audience">Audience / recipient</label>
+        <input type="text" id="audience" placeholder="e.g. mom, dog lovers, teachers">
+      </div>
+      <div>
+        <label for="occasion">Occasion</label>
+        <input type="text" id="occasion" placeholder="e.g. housewarming, birthday, Christmas">
+      </div>
+    </div>
+    <label for="extra">Extra keywords (comma separated, optional)</label>
+    <input type="text" id="extra" placeholder="e.g. handmade, amber jar, relaxation">
+    <div class="btnrow">
+      <button class="btn" id="gen">✨ Generate titles &amp; tags</button>
+      <button class="btn secondary" id="demo">Fill a demo</button>
+    </div>
+    <p class="err" id="formerr" style="display:none"></p>
+    <div id="results"></div>
+  </div>
+
+  <section class="about">
+    <h2>How Etsy titles and tags actually work</h2>
+    <p>Etsy search weighs the first words of your title and your 13 tags heavily, and tags work best as exact multi-word phrases a buyer would type — "soy candle gift for mom" beats three separate tags for "soy", "candle" and "gift". This generator builds titles from your product, material, style, audience and occasion, trims them at phrase boundaries so they never exceed 140 characters, and composes 13 tags that each stay inside the 55-character tag limit, favouring specific long-tail phrases over single generic words.</p>
+    <p>Use the character counters as a budget: green means the text fits, red means Etsy would cut it off. Generate a set, pick the title that reads most naturally to a human (search engines rank it, people click it), and copy the tags straight into your listing. Everything is generated locally in your browser from built-in category word banks — no account, no uploads.</p>
+  </section>
+</div></main>
+<footer class="site"><div class="wrap"><a href="index.html">← All tools</a> · Tools Hub — your data never leaves your device.</div></footer>
+<script>
+const $=id=>document.getElementById(id);
+const CATS={
+candle:{phrases:['scented candle','soy candle gift','cozy home decor','spa day gift','aromatherapy gift','housewarming gift'],attrs:[['Scent / fragrance','vanilla, sandalwood, lavender…'],['Size & burn time','e.g. 8 oz, approx. 45-hour burn'],['Wax & wick','soy / beeswax / coconut wax; cotton or wooden wick'],['Personalisation','custom label text or photo option']]},
+jewellery:{phrases:['dainty necklace','gift for her','anniversary gift','minimalist jewellery','everyday earrings','birthstone jewellery'],attrs:[['Material','sterling silver, gold filled, stainless steel'],['Closure & size','lobster clasp, adjustable 16–18 in chain'],['Personalisation','initial, birthstone or engraving options'],['Gift packaging','gift box and message card available']]},
+wallart:{phrases:['wall art print','gallery wall decor','living room wall art','printable wall art','boho wall decor','nursery wall print'],attrs:[['Sizes offered','5x7 up to 24x36 in, multiple ratios'],['Format','physical print or instant download'],['Frame options','unframed, framed or canvas'],['Orientation','portrait, landscape, or sold as a set']]},
+clothing:{phrases:['graphic tee','funny shirt gift','matching family shirts','birthday shirt','oversized sweatshirt','retro t shirt'],attrs:[['Sizes & fit','XS–3XL, unisex or fitted cut'],['Fabric','cotton or cotton blend, fabric weight'],['Print method','DTG, screen print or embroidery'],['Care instructions','wash inside out, tumble dry low']]},
+wedding:{phrases:['wedding decor','bridal shower gift','engagement gift','bridesmaid proposal','personalised wedding sign','wedding favour'],attrs:[['Personalisation','names, wedding date, colour palette'],['Size & quantity','singles or money-saving sets'],['Material','acrylic, wood, card stock'],['Turnaround time','production plus shipping estimate']]},
+pets:{phrases:['dog lover gift','cat mom gift','personalised pet gift','funny dog bandana','pet memorial gift','dog birthday gift'],attrs:[['Pet size guide','by breed or weight range'],['Material','fabric, ceramic or metal'],['Personalisation','pet name or photo upload'],['Care','machine washable, food-safe, wipe clean']]},
+stickers:{phrases:['vinyl sticker pack','laptop stickers','planner stickers','waterproof stickers','kindle stickers','bullet journal stickers'],attrs:[['Finish','matte, glossy or holographic'],['Size','per sticker or full sheet dimensions'],['Waterproof','splash-proof or dishwasher safe'],['Quantity','singles, packs of 10 / 25 / 50']]},
+digital:{phrases:['printable planner','digital download','instant download pdf','canva template','goodnotes planner','etsy digital product'],attrs:[['File types included','PDF, PNG and/or editable Canva link'],['Page sizes','US Letter, A4, GoodNotes-ready'],['Page count','number of pages or templates'],['License terms','personal use, no redistribution']]}
+};
+const cap=s=>s?s.charAt(0).toUpperCase()+s.slice(1):s;
+const low=s=>s.toLowerCase().trim();
+function fitTitle(segments){
+  const segs=segments.filter(x=>x&&x.trim());
+  const seen=new Set();const uniq=[];
+  segs.forEach(s=>{const k=s.toLowerCase();if(!seen.has(k)){seen.add(k);uniq.push(s);}});
+  let parts=uniq.slice();
+  while(parts.length>1&&parts.join(' | ').length>140)parts.pop();
+  let t=parts.join(' | ');
+  if(t.length>140){
+    t=t.slice(0,140);
+    const cut=t.lastIndexOf(' ');
+    if(cut>80)t=t.slice(0,cut);
+  }
+  return t;
+}
+var lastTitles=[],lastTags=[];
+function generate(){
+  const err=$('formerr');
+  const P=$('product').value.trim();
+  if(!P){err.textContent='Start with the product itself — e.g. "soy candle", "birthstone necklace", "printable wall art".';err.style.display='block';$('results').innerHTML='';return;}
+  err.style.display='none';
+  const cat=CATS[$('cat').value];
+  const p=low(P),Pc=cap(p);
+  const M=low($('material').value),S=low($('style').value.split(',')[0]||''),
+        A=low($('audience').value),O=low($('occasion').value);
+  const extras=$('extra').value.split(',').map(x=>low(x)).filter(Boolean);
+  const ph=cat.phrases;
+  const titleSegs=[
+    [Pc,M?cap(M)+' '+p:'',S?cap(S)+' gift':'',A?'Gift for '+A:''],
+    [S?cap(S)+' '+p:Pc,M?cap(M)+' '+p:'',O?cap(O)+' gift':'',cap(ph[0])],
+    [Pc,A?'for '+A:'',M?cap(M)+' '+p:'',cap(ph[1])],
+    [O?cap(O)+' gift':'',A?'for '+A:'',Pc,M?cap(M)+' '+p:'',cap(ph[2])],
+    [S?cap(S)+' ':'',M||'',Pc,O?'Perfect '+O:'',cap(ph[0]),A?'Gift for '+A:''],
+    [Pc,cap(ph[1]),S?cap(S)+' '+p:'',O?cap(O)+' gift for '+A:'']
+  ];
+  const titles=[];const tseen=new Set();
+  titleSegs.forEach(segs=>{
+    const joined=segs.map(x=>x&&x.trim()).filter(Boolean);
+    const t=fitTitle(joined.map(x=>x.replace(/\s+/g,' ')));
+    if(t&&!tseen.has(t.toLowerCase())){tseen.add(t.toLowerCase());titles.push(t);}
+  });
+  lastTitles=titles;
+  const cand=[];
+  const add=x=>{x=low(x||'').replace(/\s+/g,' ');if(x&&x.length<=55)cand.push(x);};
+  add(p);
+  if(M)add(M+' '+p);
+  if(S)add(S+' '+p);
+  add(p+' gift');
+  if(A)add('gift for '+A);
+  if(O)add(O+' gift');
+  if(O)add(O+' '+p);
+  if(S&&M)add(S+' '+M+' '+p);
+  extras.forEach(add);
+  ph.forEach(add);
+  if(S)add(S+' gift');
+  if(M)add(M+' gift');
+  if(A)add(p+' for '+A);
+  if(S&&O)add(S+' '+O+' gift');
+  if(M&&O)add(M+' '+O+' gift');
+  if(A&&O)add(O+' gift for '+A);
+  extras.forEach(e=>add(e+' '+p));
+  ph.forEach(x=>add(x+' gift'));
+  const tags=[];const gseen=new Set();
+  for(const c of cand){if(tags.length>=13)break;if(!gseen.has(c)){gseen.add(c);tags.push(c);}}
+  lastTags=tags;
+  const esc=s=>s.replace(/</g,'&lt;');
+  const cnt=(n,max)=>'<span class="pill" style="'+(n>max?'color:#b91c1c;font-weight:700':'')+'">'+n+' / '+max+'</span>';
+  let h='<h2>📝 Title candidates '+cnt(Math.max.apply(null,titles.map(t=>t.length)),140)+'</h2>';
+  h+=titles.map((t,i)=>'<div class="outbox">'+esc(t)+'<div class="btnrow"><button class="btn secondary" data-title="'+i+'">📋 Copy title</button><span class="pill">'+t.length+' / 140 characters</span></div></div>').join('');
+  h+='<h2>🏷️ Your 13 tags</h2><div>'+tags.map(t=>'<span class="chip">'+esc(t)+' <b style="'+(t.length>55?'color:#b91c1c':'color:#5b6472')+'">'+t.length+'/55</b></span>').join('')+'</div>';
+  h+='<div class="btnrow"><button class="btn secondary" id="copytags">📋 Copy all 13 tags</button></div>';
+  h+='<p class="meta">'+tags.length+' of 13 tag slots filled. Each tag is a phrase a buyer might type — paste them one per tag field in your Etsy listing.</p>';
+  h+='<h2>🧾 Attribute suggestions for this category</h2><table class="kv">'+cat.attrs.map(a=>'<tr><th>'+esc(a[0])+'</th><td>'+esc(a[1])+'</td></tr>').join('')+'</table>';
+  h+='<p class="meta">Filling every relevant attribute puts your listing in more filtered searches. Add an occasion and recipient attribute too whenever Etsy offers them for your category.</p>';
+  $('results').innerHTML=h;
+  $('results').querySelectorAll('[data-title]').forEach(b=>b.addEventListener('click',async()=>{
+    const t=lastTitles[parseInt(b.getAttribute('data-title'),10)];
+    try{await navigator.clipboard.writeText(t);b.textContent='Copied ✓';}
+    catch(e){b.textContent='Copy failed — select the text manually';}
+    setTimeout(()=>b.textContent='📋 Copy title',1800);
+  }));
+  const ct=$('copytags');
+  if(ct)ct.addEventListener('click',async()=>{
+    try{await navigator.clipboard.writeText(lastTags.join('\n'));ct.textContent='Copied ✓';}
+    catch(e){ct.textContent='Copy failed — select the tags manually';}
+    setTimeout(()=>ct.textContent='📋 Copy all 13 tags',1800);
+  });
+}
+$('gen').addEventListener('click',generate);
+$('demo').addEventListener('click',()=>{
+  $('product').value='soy candle';
+  $('cat').value='candle';
+  $('material').value='soy wax';
+  $('style').value='boho';
+  $('audience').value='mom';
+  $('occasion').value='housewarming';
+  $('extra').value='handmade, amber jar, relaxation';
+  generate();
+});
+</script>
+</body>
+</html>

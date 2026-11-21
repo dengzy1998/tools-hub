@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resume ATS Keyword Checker — Match Your Resume to the Job Description, Free</title>
+<meta name="description" content="Paste your resume and the job description to see your ATS keyword match rate, the keywords your resume is missing, and the top skills it already shows. Plus a quick ATS-friendly format checklist. Free, runs in your browser.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site"><div class="wrap">
+  <a class="logo" href="index.html">🛠️ Tools Hub</a>
+  <nav>
+    <a href="vin-decoder.html">VIN</a>
+    <a href="used-car-cost.html">Car Cost</a>
+    <a href="subtitle-tools.html">Subtitles</a>
+    <a href="caption-generator.html">Captions</a>
+    <a href="image-compressor.html">Images</a>
+    <a href="word-counter.html">Text</a>
+    <a href="qr-generator.html">QR</a>
+    <a href="resume-ats-checker.html">Resume</a>
+    <a href="etsy-title-generator.html">Etsy</a>
+  </nav>
+</div></header>
+<main><div class="wrap">
+  <h1>Resume ATS Keyword Checker</h1>
+  <p class="lede">Most large employers filter resumes with an Applicant Tracking System before a human ever reads them — and the first filter is keywords. Paste your resume and the job description below to see how well you match, and exactly which keywords you are missing.</p>
+
+  <div class="card">
+    <div class="grid2">
+      <div>
+        <label for="resume">Your resume (paste the text)</label>
+        <textarea id="resume" placeholder="Paste your full resume text here…" style="min-height:220px"></textarea>
+      </div>
+      <div>
+        <label for="jd">Job description (paste the posting)</label>
+        <textarea id="jd" placeholder="Paste the job description here…" style="min-height:220px"></textarea>
+      </div>
+    </div>
+    <div class="btnrow">
+      <button class="btn" id="analyze">🔍 Check my match</button>
+      <button class="btn secondary" id="sample">Load a sample</button>
+      <button class="btn secondary" id="clear">Clear</button>
+    </div>
+    <p class="err" id="formerr" style="display:none"></p>
+    <div id="results"></div>
+    <p class="meta" style="margin-top:14px">✍️ Found gaps? Our <strong>Job Seeker AI Pack</strong> — ready-made AI prompts to rewrite your resume, cover letter and LinkedIn profile around the keywords that matter — is coming soon to our shop.</p>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">ATS-friendly format checklist <span class="pill" id="prog-label">0 / 10 checked</span></h2>
+    <div class="progress"><i id="prog-bar"></i></div>
+    <div id="checklist"></div>
+    <div class="btnrow"><button class="btn secondary" id="reset">Reset checklist</button></div>
+    <p class="meta">Keywords get you past the filter; format decides whether the filter can read you at all. Tick each item off before you submit.</p>
+  </div>
+
+  <section class="about">
+    <h2>How the matching works</h2>
+    <p>This checker extracts the most frequent meaningful words and two-word phrases from the job description (things like "project management", "data analysis" or "sql"), then checks which of them appear in your resume. The match rate is the share of those job keywords your resume already contains. It also scans your resume against a built-in library of 140+ common professional skills to show the strongest skill words you already have. Everything is computed locally in your browser — your resume is never uploaded anywhere.</p>
+    <p>A high score does not guarantee an interview, and you should never stuff in keywords for things you cannot actually do. Use the missing list honestly: if you genuinely have the experience, reword your bullets using the employer's own language; if you do not, that gap is a signal about fit, not a formatting problem. Pair this with the format checklist above — a keyword-perfect resume in a layout the parser cannot read still scores zero.</p>
+  </section>
+</div></main>
+<footer class="site"><div class="wrap"><a href="index.html">← All tools</a> · Tools Hub — your data never leaves your device.</div></footer>
+<script>
+const $=id=>document.getElementById(id);
+const STOP=new Set(('a,an,the,and,or,of,to,in,for,on,with,as,at,by,from,will,be,is,are,was,were,this,that,it,its,you,your,we,our,they,their,he,she,who,can,all,any,more,other,into,about,than,then,so,such,no,not,only,over,under,between,through,during,before,after,up,down,out,off,again,further,once,here,there,when,where,why,how,what,which,while,should,would,could,may,might,must,shall,do,does,did,have,has,had,having,been,being,am,etc,per,plus,looking,seeking,join,opportunity,role,position,company,team,work,working,day,days,year,years,across,within,using,used,include,includes,including,help,ensure,drive,support,ability,strong,excellent,proven,track,record,related,field,degree,bachelor,master,equivalent,hands,fast,paced,environment,detail,oriented,verbal,written,interpersonal,organizational,new,us,who,what,weeks,week,month,months').split(','));
+const SHORT_OK=new Set(['ai','ml','ui','ux','qa','hr','pr','seo','sem','it','bi']);
+const SKILLS=[['JavaScript','javascript'],['TypeScript','typescript'],['Python','python'],['Java','java'],['C++','c++'],['C#','c#'],['SQL','sql'],['MySQL','mysql'],['PostgreSQL','postgresql'],['HTML','html'],['CSS','css'],['React','react'],['Angular','angular'],['Vue','vue'],['Node.js','node js'],['AWS','aws'],['Azure','azure'],['Google Cloud','google cloud'],['Docker','docker'],['Kubernetes','kubernetes'],['Git','git'],['Linux','linux'],['REST API','rest api'],['GraphQL','graphql'],['Machine Learning','machine learning'],['Data Analysis','data analysis'],['Data Visualisation','data visualisation'],['Data Visualization','data visualization'],['Statistics','statistics'],['Excel','excel'],['Tableau','tableau'],['Power BI','power bi'],['A/B Testing','a b testing'],['Agile','agile'],['Scrum','scrum'],['Jira','jira'],['Figma','figma'],['Photoshop','photoshop'],['Illustrator','illustrator'],['UI Design','ui design'],['UX Research','ux research'],['Wireframing','wireframing'],['Prototyping','prototyping'],['SEO','seo'],['SEM','sem'],['Content Marketing','content marketing'],['Email Marketing','email marketing'],['Social Media','social media'],['Copywriting','copywriting'],['Google Analytics','google analytics'],['Brand Strategy','brand strategy'],['Market Research','market research'],['Salesforce','salesforce'],['HubSpot','hubspot'],['Lead Generation','lead generation'],['Negotiation','negotiation'],['Account Management','account management'],['Customer Service','customer service'],['Customer Success','customer success'],['CRM','crm'],['Project Management','project management'],['Product Management','product management'],['Roadmapping','roadmapping'],['Stakeholder Management','stakeholder management'],['Budget Management','budget management'],['Risk Management','risk management'],['Quality Assurance','quality assurance'],['Testing','testing'],['Automation','automation'],['CI/CD','ci cd'],['Cloud Computing','cloud computing'],['Cybersecurity','cybersecurity'],['Networking','networking'],['Technical Support','technical support'],['Troubleshooting','troubleshooting'],['Supply Chain','supply chain'],['Logistics','logistics'],['Inventory Management','inventory management'],['Procurement','procurement'],['Bookkeeping','bookkeeping'],['Accounting','accounting'],['Financial Analysis','financial analysis'],['Forecasting','forecasting'],['Auditing','auditing'],['Tax','tax'],['Payroll','payroll'],['Recruiting','recruiting'],['Onboarding','onboarding'],['Training','training'],['Public Speaking','public speaking'],['Presentation','presentation'],['Communication','communication'],['Leadership','leadership'],['Mentoring','mentoring'],['Problem Solving','problem solving'],['Time Management','time management'],['Research','research'],['Writing','writing'],['Editing','editing'],['Video Editing','video editing'],['WordPress','wordpress'],['Shopify','shopify'],['E-commerce','e commerce'],['Data Entry','data entry'],['Microsoft Office','microsoft office'],['Google Workspace','google workspace'],['Slack','slack'],['Notion','notion'],['Zapier','zapier'],['Python Scripting','python scripting'],['Web Development','web development'],['Mobile Development','mobile development'],['iOS','ios'],['Android','android'],['Flutter','flutter'],['React Native','react native'],['PHP','php'],['Ruby','ruby'],['Go','go'],['Rust','rust'],['Swift','swift'],['Kotlin','kotlin'],['MongoDB','mongodb'],['Redis','redis'],['Elasticsearch','elasticsearch'],['Kafka','kafka'],['Spark','spark'],['TensorFlow','tensorflow'],['PyTorch','pytorch'],['NLP','nlp'],['Deep Learning','deep learning'],['Prompt Engineering','prompt engineering'],['LLM','llm'],['Generative AI','generative ai'],['Data Engineering','data engineering'],['ETL','etl'],['Data Modelling','data modelling'],['Business Analysis','business analysis'],['Requirements Gathering','requirements gathering'],['Process Improvement','process improvement'],['Change Management','change management'],['Event Planning','event planning'],['Office Management','office management'],['Scheduling','scheduling'],['Translation','translation'],['Mandarin','mandarin'],['Spanish','spanish'],['French','french'],['German','german'],['Japanese','japanese']];
+const SKILL_NORM=new Set(SKILLS.map(s=>s[1]));
+function tokens(text){return text.toLowerCase().replace(/[^a-z0-9+#]+/g,' ').split(/\s+/).filter(Boolean);}
+function normText(text){return ' '+tokens(text).join(' ')+' ';}
+function countOcc(norm,phrase){return norm.split(' '+phrase+' ').length-1;}
+function extractKeywords(jdText){
+  const toks=tokens(jdText);
+  const uni={},bi={};
+  toks.forEach(t=>{if(!STOP.has(t)&&(t.length>2||SHORT_OK.has(t))&&!/^\d+$/.test(t))uni[t]=(uni[t]||0)+1;});
+  for(let i=0;i<toks.length-1;i++){
+    const a=toks[i],b=toks[i+1];
+    if(STOP.has(a)||STOP.has(b)||a.length<2||b.length<2)continue;
+    const k=a+' '+b;bi[k]=(bi[k]||0)+1;
+  }
+  const scored=[];
+  Object.keys(uni).forEach(k=>scored.push({k:k,c:uni[k],s:uni[k]}));
+  Object.keys(bi).forEach(k=>{if(bi[k]>=2||SKILL_NORM.has(k))scored.push({k:k,c:bi[k],s:bi[k]*1.6+0.5});});
+  scored.sort((x,y)=>y.s-x.s);
+  const out=[];let biCount=0;
+  for(const item of scored){
+    if(out.length>=40)break;
+    if(item.k.indexOf(' ')>=0){if(biCount>=15)continue;biCount++;}
+    out.push(item);
+  }
+  return out;
+}
+var lastMissing=[];
+function analyze(){
+  const resume=$('resume').value.trim(),jd=$('jd').value.trim();
+  const err=$('formerr');
+  if(resume.length<80||jd.length<80){
+    err.textContent='Please paste both a full resume and a full job description (each at least a paragraph) so there is enough text to compare.';
+    err.style.display='block';$('results').innerHTML='';return;
+  }
+  err.style.display='none';
+  const rNorm=normText(resume);
+  const keywords=extractKeywords(jd);
+  const found=[],missing=[];
+  keywords.forEach(item=>{
+    if(rNorm.indexOf(' '+item.k+' ')>=0)found.push(item);else missing.push(item);
+  });
+  lastMissing=missing.map(m=>m.k);
+  const rate=keywords.length?Math.round(found.length/keywords.length*100):0;
+  const rateClass=rate>=70?'ok':(rate>=40?'warn':'err');
+  const skillHits=[];
+  SKILLS.forEach(([disp,norm])=>{const c=countOcc(rNorm,norm);if(c>0)skillHits.push({disp:disp,c:c});});
+  skillHits.sort((a,b)=>b.c-a.c||a.disp.localeCompare(b.disp));
+  const topSkills=skillHits.slice(0,15);
+  const chip=(txt,cls)=>'<span class="chip '+cls+'">'+txt.replace(/</g,'&lt;')+'</span>';
+  let h='<div class="stats" style="margin-top:16px">'
+    +'<div class="stat"><b class="'+rateClass+'">'+rate+'%</b><span>Keyword match rate</span></div>'
+    +'<div class="stat"><b>'+keywords.length+'</b><span>Job keywords checked</span></div>'
+    +'<div class="stat"><b>'+found.length+'</b><span>Found in your resume</span></div>'
+    +'<div class="stat"><b>'+missing.length+'</b><span>Missing</span></div></div>';
+  if(missing.length){
+    h+='<h2>⚠️ Keywords in the job post but missing from your resume</h2><div>'
+      +missing.map(m=>chip(m.k+' ·×'+m.c,'miss')).join('')+'</div>'
+      +'<div class="btnrow"><button class="btn secondary" id="copymiss">📋 Copy missing keywords</button></div>'
+      +'<p class="meta">Add the ones that honestly describe your experience — in a Skills section and inside your experience bullets. Never add skills you cannot back up in an interview.</p>';
+  }else{
+    h+='<h2 class="ok">✅ No missing keywords — your resume covers every top keyword in this posting.</h2>';
+  }
+  if(found.length){
+    h+='<h2>✅ Keywords you already match</h2><div>'+found.map(m=>chip(m.k,'hit')).join('')+'</div>';
+  }
+  if(topSkills.length){
+    h+='<h2>🧰 Top skill words already in your resume</h2><div>'
+      +topSkills.map(s=>chip(s.disp+' <b>×'+s.c+'</b>','')).join('')+'</div>'
+      +'<p class="meta">These come from a built-in library of 140+ professional skills. The most repeated ones are your resume\u2019s current centre of gravity — check they line up with the job you want.</p>';
+  }
+  $('results').innerHTML=h;
+  const cm=$('copymiss');
+  if(cm)cm.addEventListener('click',async()=>{
+    try{await navigator.clipboard.writeText(lastMissing.join(', '));cm.textContent='Copied ✓';}
+    catch(e){cm.textContent='Copy failed — select the list manually';}
+    setTimeout(()=>cm.textContent='📋 Copy missing keywords',1800);
+  });
+}
+$('analyze').addEventListener('click',analyze);
+$('clear').addEventListener('click',()=>{$('resume').value='';$('jd').value='';$('results').innerHTML='';$('formerr').style.display='none';});
+$('sample').addEventListener('click',()=>{
+  $('resume').value='Marketing specialist with 4 years of experience running social media campaigns for consumer brands. Grew Instagram following by 60% through content marketing and influencer partnerships. Skilled in email marketing, copywriting and Google Analytics. Managed a monthly ad budget of $8,000 across Meta and Google Ads, improving click-through rates by 25%. Strong communication skills and experience with HubSpot CRM, scheduling tools and Microsoft Office. Bachelor degree in Communications.';
+  $('jd').value='We are hiring a Digital Marketing Manager to own our SEO and content strategy. You will lead data analysis of campaign performance using Tableau and SQL, run A/B testing on landing pages, and manage a small team. Requirements: 5+ years in digital marketing, deep knowledge of SEO, SEM and marketing automation, experience with machine learning driven personalisation, Salesforce and marketing analytics. Strong project management skills and stakeholder management experience are essential. Experience with video editing and generative AI tools is a plus.';
+  analyze();
+});
+const CHECKS=['Single-column layout — no tables, text boxes or multi-column designs','Standard section headings: Summary, Experience, Education, Skills','Contact details in the main body — not in a header, footer or image','File is a text-based PDF or .docx — not a scanned image','No icons, photos, charts or skill bars (parsers read them as gibberish)','Job titles and wording mirror the posting, where truthful','Keywords appear in a Skills section AND inside experience bullets','One consistent date format throughout (e.g. Jan 2022 – Present)','Standard fonts only: Arial, Calibri, Georgia or Times New Roman','Abbreviations are spelled out at least once (e.g. "Search Engine Optimization (SEO)")'];
+const wrap=$('checklist');
+CHECKS.forEach(text=>{
+  const lab=document.createElement('label');lab.className='check';
+  lab.innerHTML='<input type="checkbox"><span></span>';
+  lab.querySelector('span').textContent=text;
+  lab.querySelector('input').addEventListener('change',e=>{lab.classList.toggle('done',e.target.checked);progress();});
+  wrap.appendChild(lab);
+});
+function progress(){
+  const done=wrap.querySelectorAll('input:checked').length;
+  $('prog-label').textContent=done+' / '+CHECKS.length+' checked';
+  $('prog-bar').style.width=(done/CHECKS.length*100)+'%';
+}
+$('reset').addEventListener('click',()=>{wrap.querySelectorAll('input').forEach(i=>{i.checked=false;i.closest('.check').classList.remove('done');});progress();});
+progress();
+</script>
+</body>
+</html>
