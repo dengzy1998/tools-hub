@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Telegram Glance — 一瞥</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #0b0e14; color: #e8ecf3;
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+    min-height: 100vh; display: flex; justify-content: center;
+  }
+  .frame { width: 100%; max-width: 400px; padding: 18px 16px 32px; }
+  header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
+  header h1 { font-size: 15px; letter-spacing: .14em; color: #9aa7bd; font-weight: 600; }
+  header .count { font-size: 13px; color: #6b7688; }
+  .sub { font-size: 12px; color: #6b7688; margin-bottom: 16px; }
+  .card {
+    background: #151a24; border: 1px solid #232a38; border-radius: 14px;
+    padding: 14px 14px 12px; margin-bottom: 10px;
+    transition: opacity .3s, transform .3s;
+  }
+  .card.done { opacity: 0; transform: translateX(24px); pointer-events: none; }
+  .card.urgent { border-color: #5a2b2b; background: #1d1518; }
+  .row1 { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: #8a93a5; flex: none; }
+  .card.urgent .dot { background: #ff4d4d; box-shadow: 0 0 8px #ff4d4d88; }
+  .sender { font-size: 15px; font-weight: 600; }
+  .tag { margin-left: auto; font-size: 11px; color: #ff6b6b; }
+  .card:not(.urgent) .tag { color: #6b7688; }
+  .text { font-size: 14px; line-height: 1.5; color: #c9d2e0; margin-bottom: 10px; }
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .chip {
+    border: 1px solid #2e3d55; background: #1c2534; color: #cfe0ff;
+    font-size: 13px; padding: 7px 12px; border-radius: 999px; cursor: pointer;
+  }
+  .chip:active { background: #2b3c5a; }
+  .chip.later { color: #9aa7bd; }
+  .fold { font-size: 13px; color: #6b7688; text-align: center; padding: 6px 0 2px; }
+  .empty { display: none; text-align: center; padding: 56px 0; }
+  .empty .big { font-size: 44px; margin-bottom: 12px; }
+  .empty p { font-size: 15px; color: #9aa7bd; }
+  .demo-note { margin-top: 24px; font-size: 11px; color: #4d586c; text-align: center; line-height: 1.6; }
+</style>
+</head>
+<body>
+<div class="frame">
+  <header><h1>TELEGRAM GLANCE</h1><span class="count" id="count"></span></header>
+  <p class="sub">眼镜视角预览 · 紧急的排在最前</p>
+  <div id="list"></div>
+  <p class="fold" id="fold"></p>
+  <div class="empty" id="empty">
+    <div class="big">✅</div>
+    <p>全部处理完，已清空</p>
+  </div>
+  <p class="demo-note">演示数据 · 手机上看到的是眼镜排版的等比例预览<br>Even Realities 构建周 · Telegram Glance</p>
+</div>
+<script>
+const MESSAGES = [
+  { sender: "产品发布群", kind: "group", urgent: true,
+    text: "明早 10 点评审会，方案终稿今晚 12 点前发我，急" },
+  { sender: "快递通知", kind: "channel", urgent: true,
+    text: "您的包裹已到丰巢，取件码 482913，今晚 22 点前取" },
+  { sender: "李然", kind: "private", urgent: false,
+    text: "晚上七点老地方见，别迟到" },
+];
+const QUICK = ["好的", "马上到", "晚点回"];
+const tg = window.Telegram && window.Telegram.WebApp;
+if (tg) { tg.ready(); tg.expand(); }
+
+let remaining = MESSAGES.length;
+const list = document.getElementById("list");
+const countEl = document.getElementById("count");
+const foldEl = document.getElementById("fold");
+const emptyEl = document.getElementById("empty");
+
+function renderCount() {
+  countEl.textContent = remaining ? remaining + " 条未读" : "已清空";
+  foldEl.textContent = remaining === 0 ? "" : "还有 1 条普通消息";
+}
+function sendReply(sender, reply) {
+  if (tg) tg.sendData(JSON.stringify({ sender, reply }));
+}
+MESSAGES.forEach(m => {
+  const card = document.createElement("div");
+  card.className = "card" + (m.urgent ? " urgent" : "");
+  card.innerHTML =
+    '<div class="row1"><span class="dot"></span><span class="sender"></span>' +
+    '<span class="tag">' + (m.urgent ? "紧急" : "普通") + '</span></div>' +
+    '<p class="text"></p><div class="chips"></div>';
+  card.querySelector(".sender").textContent = m.sender;
+  card.querySelector(".text").textContent =
+    m.text.length > 24 ? m.text.slice(0, 24) + "…" : m.text;
+  const chips = card.querySelector(".chips");
+  QUICK.forEach(q => {
+    const b = document.createElement("button");
+    b.className = "chip"; b.textContent = q;
+    b.onclick = () => { sendReply(m.sender, q); dismiss(card); };
+    chips.appendChild(b);
+  });
+  const later = document.createElement("button");
+  later.className = "chip later"; later.textContent = "稍后";
+  later.onclick = () => { sendReply(m.sender, "稍后"); dismiss(card); };
+  chips.appendChild(later);
+  list.appendChild(card);
+});
+function dismiss(card) {
+  card.classList.add("done");
+  remaining -= 1;
+  setTimeout(() => { card.remove(); renderCount(); }, 300);
+  if (remaining === 0) setTimeout(() => { emptyEl.style.display = "block"; }, 320);
+}
+renderCount();
+</script>
+</body>
+</html>
