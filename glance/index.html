@@ -71,7 +71,10 @@ const QUICK = ["好的", "马上到", "晚点回"];
 const tg = window.Telegram && window.Telegram.WebApp;
 if (tg) { tg.ready(); tg.expand(); }
 
+const urgent = MESSAGES.filter(m => m.urgent);
+const normal = MESSAGES.filter(m => !m.urgent);
 let remaining = MESSAGES.length;
+let folded = normal.length;
 const list = document.getElementById("list");
 const countEl = document.getElementById("count");
 const foldEl = document.getElementById("fold");
@@ -79,12 +82,12 @@ const emptyEl = document.getElementById("empty");
 
 function renderCount() {
   countEl.textContent = remaining ? remaining + " 条未读" : "已清空";
-  foldEl.textContent = remaining === 0 ? "" : "还有 1 条普通消息";
+  foldEl.textContent = folded ? "还有 " + folded + " 条普通消息 ▼" : "";
 }
 function sendReply(sender, reply) {
   if (tg) tg.sendData(JSON.stringify({ sender, reply }));
 }
-MESSAGES.forEach(m => {
+function makeCard(m) {
   const card = document.createElement("div");
   card.className = "card" + (m.urgent ? " urgent" : "");
   card.innerHTML =
@@ -98,18 +101,32 @@ MESSAGES.forEach(m => {
   QUICK.forEach(q => {
     const b = document.createElement("button");
     b.className = "chip"; b.textContent = q;
-    b.onclick = () => { sendReply(m.sender, q); dismiss(card); };
+    b.onclick = () => { sendReply(m.sender, q); dismiss(card, m); };
     chips.appendChild(b);
   });
   const later = document.createElement("button");
   later.className = "chip later"; later.textContent = "稍后";
-  later.onclick = () => { sendReply(m.sender, "稍后"); dismiss(card); };
+  later.onclick = () => { sendReply(m.sender, "稍后"); dismiss(card, m); };
   chips.appendChild(later);
-  list.appendChild(card);
-});
-function dismiss(card) {
+  return card;
+}
+urgent.forEach(m => list.appendChild(makeCard(m)));
+const normalWrap = document.createElement("div");
+normalWrap.id = "normalWrap";
+normalWrap.style.display = "none";
+normal.forEach(m => normalWrap.appendChild(makeCard(m)));
+list.appendChild(normalWrap);
+foldEl.style.cursor = "pointer";
+foldEl.onclick = () => {
+  const open = normalWrap.style.display !== "none";
+  normalWrap.style.display = open ? "none" : "block";
+  foldEl.textContent = folded
+    ? "还有 " + folded + " 条普通消息 " + (open ? "▼" : "▲") : "";
+};
+function dismiss(card, m) {
   card.classList.add("done");
   remaining -= 1;
+  if (!m.urgent) folded -= 1;
   setTimeout(() => { card.remove(); renderCount(); }, 300);
   if (remaining === 0) setTimeout(() => { emptyEl.style.display = "block"; }, 320);
 }
