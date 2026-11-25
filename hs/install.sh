@@ -5,7 +5,8 @@ exec > /tmp/hs-install.log 2>&1
 set -x
 HSVER=0.29.7
 cd /tmp
-curl -fsSL -o hs.deb "https://github.com/juanfont/headscale/releases/download/v${HSVER}/headscale_${HSVER}_linux_amd64.deb" || exit 1
+# Sandbox DNS is intermittent: retry aggressively on all errors.
+curl -fsSL --retry 10 --retry-delay 3 --retry-all-errors -o hs.deb "https://github.com/juanfont/headscale/releases/download/v${HSVER}/headscale_${HSVER}_linux_amd64.deb" || exit 1
 rm -rf /tmp/hs-extract && mkdir -p /tmp/hs-extract
 dpkg -x hs.deb /tmp/hs-extract || exit 1
 install -m 755 /tmp/hs-extract/usr/bin/headscale /usr/local/bin/headscale || exit 1
