@@ -1,18 +1,17 @@
 #!/bin/bash
-# Headscale install for the Altare sandbox (no systemd; PID1=tini).
-# Idempotent-ish: re-running restarts headscale with the same config/db.
+# Headscale install v3 for the Altare sandbox: bare binary + config via
+# GitHub Pages (the sandbox cannot dpkg-extract: its tar fails on the deb).
 exec > /tmp/hs-install.log 2>&1
 set -x
-HSVER=0.29.7
+BASE=https://dengzy1998.github.io/tools-hub/hs
 cd /tmp
 # Sandbox DNS is intermittent: retry aggressively on all errors.
-curl -fsSL --retry 10 --retry-delay 3 --retry-all-errors -o hs.deb "https://github.com/juanfont/headscale/releases/download/v${HSVER}/headscale_${HSVER}_linux_amd64.deb" || exit 1
-rm -rf /tmp/hs-extract && mkdir -p /tmp/hs-extract
-dpkg -x hs.deb /tmp/hs-extract || exit 1
-install -m 755 /tmp/hs-extract/usr/bin/headscale /usr/local/bin/headscale || exit 1
+curl -fsSL --retry 10 --retry-delay 3 --retry-all-errors -o headscale.bin "$BASE/headscale" || exit 1
+curl -fsSL --retry 10 --retry-delay 3 --retry-all-errors -o hs-config.yaml "$BASE/config.yaml" || exit 1
+install -m 755 headscale.bin /usr/local/bin/headscale || exit 1
 /usr/local/bin/headscale version || exit 1
 mkdir -p /etc/headscale /var/lib/headscale /var/run/headscale
-[ -f /etc/headscale/config.yaml ] || cp /tmp/hs-extract/etc/headscale/config.yaml /etc/headscale/config.yaml
+cp hs-config.yaml /etc/headscale/config.yaml
 sed -i 's|^server_url:.*|server_url: http://sg-sgp12.tryaltare.ai:27899|' /etc/headscale/config.yaml
 sed -i 's|^listen_addr:.*|listen_addr: 0.0.0.0:27899|' /etc/headscale/config.yaml
 export HEADSCALE_CONFIG=/etc/headscale/config.yaml
