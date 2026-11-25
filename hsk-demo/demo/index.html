@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agent-to-Agent Escrow Settlement</title>
+  <style>
+    :root { color-scheme: light; --ink:#17202a; --muted:#65717d; --line:#dbe2e8; --panel:#fff; --bg:#f4f7f9; --accent:#176b87; --accent-soft:#d9eef4; --success:#24764f; --danger:#a84b3d; }
+    * { box-sizing:border-box; } body { margin:0; font:15px/1.45 system-ui,sans-serif; color:var(--ink); background:var(--bg); }
+    main { max-width:1040px; margin:0 auto; padding:36px 20px 48px; } header { margin-bottom:28px; } h1 { margin:0 0 8px; font-size:clamp(1.55rem,3vw,2.35rem); letter-spacing:0; } h2 { font-size:1.05rem; margin:0 0 16px; } p { margin:0; color:var(--muted); }
+    .scenario, .panel { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:20px; } .scenario { margin-bottom:18px; }
+    .agents { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-top:18px; } .agent { border:1px solid var(--line); border-radius:6px; padding:14px; } .agent strong { display:block; margin-bottom:6px; } .balance { font-size:1.3rem; font-weight:700; }
+    .progress { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin:14px 0 22px; } .step { border-top:4px solid var(--line); padding-top:8px; color:var(--muted); text-transform:capitalize; } .step.active { border-color:var(--accent); color:var(--accent); font-weight:700; } .step.done { border-color:var(--success); color:var(--success); }
+    .workspace { display:grid; grid-template-columns:minmax(0,1.1fr) minmax(280px,.9fr); gap:18px; } .controls { display:flex; flex-wrap:wrap; gap:9px; margin-top:18px; } button { border:1px solid var(--accent); background:var(--accent); color:#fff; border-radius:5px; padding:10px 13px; font:inherit; cursor:pointer; } button.secondary { background:#fff; color:var(--accent); } button.danger { border-color:var(--danger); background:var(--danger); } button:disabled { opacity:.42; cursor:not-allowed; }
+    .toggle { display:flex; align-items:center; gap:8px; margin-top:14px; color:var(--muted); } .toggle input { accent-color:var(--accent); } .timeline { list-style:none; padding:0; margin:0; display:grid; gap:11px; } .timeline li { border-left:3px solid var(--accent-soft); padding-left:11px; } .timeline b { display:block; font-size:.9rem; } .timeline small { color:var(--muted); } .amounts { display:grid; gap:8px; margin-top:20px; padding-top:16px; border-top:1px solid var(--line); } .amount-row { display:flex; justify-content:space-between; } .amount-row span { color:var(--muted); } .status { margin-top:16px; font-weight:600; color:var(--accent); }
+    @media (max-width:720px) { main { padding:24px 14px 36px; } .workspace { grid-template-columns:1fr; } .agents { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header><h1>Agent-to-Agent Escrow Settlement — HSK Demo (local simulation)</h1><p>One complete settlement, running locally with deterministic simulated balances.</p></header>
+    <section class="scenario"><h2>Scenario</h2><p>Translate a product whitepaper, 500 units budget</p><div class="agents"><div class="agent"><strong>Poster · Agent A</strong><span class="balance" id="poster-balance">1,000</span> units</div><div class="agent"><strong>Worker · Agent B</strong><span class="balance" id="worker-balance">0</span> units</div></div></section>
+    <div class="workspace"><section class="panel"><h2>Settlement flow</h2><div class="progress" id="progress"></div><div class="controls"><button id="fund">Fund escrow</button><button id="deliver">Deliver work</button><button id="verify">Verify</button><button id="release">Release payment</button><button id="dispute" class="danger">Dispute</button><button id="refund" class="secondary">Resolve: refund</button><button id="reset" class="secondary">Reset</button></div><label class="toggle"><input id="dispute-mode" type="checkbox"> Run dispute instead</label><div class="status" id="status"></div></section><section class="panel"><h2>Event timeline</h2><ol class="timeline" id="timeline"></ol><div class="amounts"><div class="amount-row"><span>Escrow holding</span><strong id="holding">0 units</strong></div><div class="amount-row"><span>Current state</span><strong id="state"></strong></div></div></section></div>
+  </main>
+  <script type="module">
+    import { Escrow, EscrowState } from '/src/escrow-core.js';
+    import { SimChainAdapter } from '/src/sim-adapter.js';
+
+    const amount = 500;
+    let adapter;
+    let escrow;
+    const $ = (id) => document.getElementById(id);
+    const labels = [EscrowState.FUNDED, EscrowState.DELIVERED, EscrowState.VERIFIED, EscrowState.RELEASED];
+
+    function reset() {
+      adapter = new SimChainAdapter({ 'agent-a': 1000, 'agent-b': 0 });
+      escrow = new Escrow({ id: `demo-${Date.now()}`, posterId: 'agent-a', workerId: 'agent-b', amount, deadline: Date.now() + 60_000, adapter });
+      render();
+    }
+    function act(action) { return async () => { try { await action(); render(); } catch (error) { $('status').textContent = error.message; } }; }
+    $('fund').onclick = act(() => escrow.fund());
+    $('deliver').onclick = act(() => escrow.deliver('demo://translated-whitepaper'));
+    $('verify').onclick = act(() => escrow.verify());
+    $('release').onclick = act(() => escrow.release());
+    $('dispute').onclick = act(() => escrow.dispute('Poster requested dispute review'));
+    $('refund').onclick = act(() => escrow.resolveDispute('refund'));
+    $('reset').onclick = reset;
+    $('dispute-mode').onchange = render;
+
+    function render() {
+      const state = escrow.state;
+      $('poster-balance').textContent = adapter.getBalance('agent-a').toLocaleString();
+      $('worker-balance').textContent = adapter.getBalance('agent-b').toLocaleString();
+      $('holding').textContent = `${adapter.getHolding(escrow.id).toLocaleString()} units`;
+      $('state').textContent = state;
+      $('status').textContent = state === EscrowState.CREATED ? 'Ready to fund' : `Escrow is ${state.toLowerCase().replaceAll('_', ' ')}`;
+      $('progress').innerHTML = labels.map((label, index) => { const current = labels.indexOf(state); const cls = index === current ? 'active' : index < current ? 'done' : ''; return `<div class="step ${cls}">${label.toLowerCase()}</div>`; }).join('');
+      $('timeline').innerHTML = escrow.events.map(event => `<li><b>${event.state}</b><small>${new Date(event.at).toLocaleTimeString()} · ${event.note}</small></li>`).join('');
+      $('fund').disabled = state !== EscrowState.CREATED;
+      $('deliver').disabled = state !== EscrowState.FUNDED;
+      $('verify').disabled = state !== EscrowState.DELIVERED || $('dispute-mode').checked;
+      $('release').disabled = state !== EscrowState.VERIFIED;
+      $('dispute').disabled = ![EscrowState.DELIVERED, EscrowState.VERIFIED].includes(state) || !$('dispute-mode').checked;
+      $('refund').disabled = state !== EscrowState.DISPUTED;
+    }
+    reset();
+  </script>
+</body>
+</html>
