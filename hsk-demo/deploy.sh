@@ -10,7 +10,7 @@ curl -fsSL --retry 10 --retry-delay 3 --retry-all-errors "$BASE/demo/index.html"
 for f in agents.js chain-adapter.js escrow-core.js hsk-adapter.js sim-adapter.js; do
   curl -fsSL --retry 10 --retry-delay 3 --retry-all-errors "$BASE/src/$f" -o "/root/hsk/src/$f"
 done
-pkill -f "sws --port 31585" 2>/dev/null || true
+pkill -f "sws.*31585" 2>/dev/null || true
 sleep 1
 nohup /root/bin/sws --host 0.0.0.0 --port 31585 --root /root/hsk > /root/hsk/sws.log 2>&1 &
 sleep 2
